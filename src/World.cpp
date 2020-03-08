@@ -3,11 +3,19 @@
 
 namespace cricket
 {
-    void World::Update()
+    void World::Update(const sf::Time& dt)
     {
         for (auto& spObject : m_objects)
         {
-            spObject->Update();
+            spObject->Update(dt);
+        }
+    }
+
+    void World::Draw(sf::RenderWindow& window)
+    {
+        for (auto& spObject : m_objects)
+        {
+            spObject->Draw(window);
         }
     }
 

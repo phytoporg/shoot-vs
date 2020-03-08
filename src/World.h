@@ -4,9 +4,11 @@
 
 #pragma once
 
+#include "GameObject.h"
+
 #include <vector>
 
-#include "GameObject.h"
+#include <SFML/Graphics.hpp>
 
 namespace cricket
 {
@@ -16,7 +18,8 @@ namespace cricket
         World() = default;
         virtual ~World() = default;
 
-        void Update();
+        void Update(const sf::Time& dt);
+        void Draw(sf::RenderWindow& window);
 
         void AddObject(const GameObjectPtr& spObj);
 
