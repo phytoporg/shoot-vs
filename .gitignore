@@ -33,3 +33,6 @@
 
 # Build artifacts
 build/*
+
+# Vim
+*.swp
