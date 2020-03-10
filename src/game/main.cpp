@@ -4,9 +4,10 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
-#include "World.h"
+#include <cricket/World.h>
+#include <cricket/AssetLibrary.h>
+
 #include "Ship.h"
-#include "AssetLibrary.h"
 
 #include <iostream>
 #include <experimental/filesystem>

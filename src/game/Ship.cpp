@@ -1,5 +1,6 @@
 #include "Ship.h"
-#include "AssetLibrary.h"
+
+#include <cricket/AssetLibrary.h>
 
 #include <experimental/filesystem>
 
