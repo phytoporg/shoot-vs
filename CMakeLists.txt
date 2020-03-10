@@ -1,11 +1,20 @@
 cmake_minimum_required (VERSION 2.8)
-project(ShootVs)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR}/cmake)
-find_package(SFML COMPONENTS graphics window system)
-message(STATUS "SFML included at ${SFML_INCLUDE_DIR}")
 
-find_package(GLM REQUIRED)
-message(STATUS "GLM included at ${GLM_INCLUDE_DIR}")
+#
+# Handle superbuild first
+# Leveraging the superbuild pattern illustrated at Sarcasm/cmake-superbuild
+#
+option (USE_SUPERBUILD "Whether or not a superbuild should be invoked" ON)
+option (DEPS_ONLY "Only build dependencies and skip Watcher step" OFF)
+
+if (USE_SUPERBUILD)
+    project(SUPERBUILD NONE)
+    include(cmake/Superbuild.cmake)
+    return()
+elseif(NOT DEPS_ONLY)
+    project(Watchers CXX C)
+endif()
 
 add_subdirectory(src)
