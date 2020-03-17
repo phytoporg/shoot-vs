@@ -8,7 +8,7 @@ namespace cricket
 {
     struct InputDeviceClass
     {
-        enum
+        enum EnumType
         {
             Uninitialized = 0,
             Keyboard,
