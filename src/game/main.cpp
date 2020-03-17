@@ -5,20 +5,14 @@
 #include <SFML/Graphics/Sprite.hpp>
 
 #include <cricket/World.h>
+#include <cricket/KeyboardEventState.h>
 #include <cricket/AssetLibrary.h>
 
 #include "Ship.h"
+#include "GameSimulation.h"
 
 #include <iostream>
 #include <experimental/filesystem>
-
-struct KeyState
-{
-    bool DownPressed;
-    bool UpPressed;
-    bool LeftPressed;
-    bool RightPressed;
-};
 
 //
 // Usage: <program> (asset library root path)
@@ -51,24 +45,11 @@ int main(int argc, char** argv)
         return -1;
     }
     
-    // 
-    // Initialize world.
-    //  
-    auto spShip = cricket::Ship::CreateObject(*spAssetLibrary, 0);
-    if (!spShip)
-    {
-        std::cerr << "Could not create main ship! Bailing." << std::endl;
-        return -1;
-    }
-    spShip->SetPosition(sf::Vector2i(100, 100));
-    spShip->SetVelocity(sf::Vector2i(0, 0));
-
-    cricket::World world;
-    world.AddObject(spShip);
-
-    KeyState keyState = {};
+    ShootVs::GameSimulationPtr spGameSimulation = 
+        ShootVs::GameSimulation::CreateAndInitialize(*spAssetLibrary);
 
     sf::Clock clock;
+    cricket::KeyboardEventState eventState;
     while (window.isOpen())
     {
         sf::Event event;
@@ -77,75 +58,41 @@ int main(int argc, char** argv)
             if (event.type == sf::Event::Closed)
 			{
                 window.close();
-			}
-            else if(event.type == sf::Event::KeyPressed)
-            {
-                if (event.key.code == sf::Keyboard::W)
-                {
-                    keyState.UpPressed = true;
-                }
-
-                if (event.key.code == sf::Keyboard::S)
-                {
-                    keyState.DownPressed = true;
-                }
-
-                if (event.key.code == sf::Keyboard::A)
-                {
-                    keyState.LeftPressed = true;
-                }
-
-                if (event.key.code == sf::Keyboard::D)
-                {
-                    keyState.RightPressed = true;
-                }
-            }
-            else if(event.type == sf::Event::KeyReleased)
-            {
-                if (event.key.code == sf::Keyboard::Q ||
-                    event.key.code == sf::Keyboard::Escape)
-                {
-                    window.close();
-                }
-
-                if (event.key.code == sf::Keyboard::W)
-                {
-                    keyState.UpPressed = false;
-                }
-
-                if (event.key.code == sf::Keyboard::S)
-                {
-                    keyState.DownPressed = false;
-                }
-
-                if (event.key.code == sf::Keyboard::A)
-                {
-                    keyState.LeftPressed = false;
-                }
-
-                if (event.key.code == sf::Keyboard::D)
-                {
-                    keyState.RightPressed = false;
-                }
             } else if (event.type == sf::Event::Resized) {
                 sf::FloatRect visibleArea(
                     0, 0, event.size.width, event.size.height);
 				window.setView(sf::View(visibleArea));
-                spShip->SetPosition(sf::Vector2i(100, 100));
+
+                //
+                // HRM. Gotta fix this.
+                //
+                // spShip->SetPosition(sf::Vector2i(100, 100));
             }
+
+            eventState.ProcessEvent(event);
         }
 
-        sf::Vector2i velocitySum(0, 0);
-        if (keyState.UpPressed)    { velocitySum += sf::Vector2i(0, -1); }
-        if (keyState.DownPressed)  { velocitySum += sf::Vector2i(0,  1); }
-        if (keyState.LeftPressed)  { velocitySum += sf::Vector2i(-1, 0); }
-        if (keyState.RightPressed) { velocitySum += sf::Vector2i( 1, 0); }
-        spShip->SetVelocity(velocitySum);
+        const auto& P1State = eventState.GetActionState();
+        if (P1State.Quit) { window.close(); break; }
 
+        spGameSimulation->EnqueueAction(P1State, cricket::ActionPlayer1);
+
+        //
+        // TODO: Add proper timing logic per frame.
+        //
         window.clear();
-        world.Update(clock.getElapsedTime());
-        world.Draw(window);
+        spGameSimulation->AdvanceFrames(1);
+        spGameSimulation->Draw(window);
+
+        //
+        // Enforce the desired FPS
+        //
+        sf::Time elapsed{clock.getElapsedTime()};
+        const sf::Time DesiredFrameDuration(
+            sf::seconds(1.0 / ShootVs::GameSimulation::TargetFPS));
+        sf::sleep(DesiredFrameDuration - elapsed);
         clock.restart();
+
         window.display();
     }
 

@@ -10,15 +10,15 @@
 
 namespace 
 {
-    const int32_t Speed{200};
+    const int32_t Speed{300};
 }
 
-namespace cricket
+namespace ShootVs
 {
     const std::string Ship::SheetAsset("ships.png");
 
-    GameObjectPtr Ship::CreateObject(
-        const AssetLibrary& assetLibrary,
+    cricket::GameObjectPtr Ship::CreateObject(
+        const cricket::AssetLibrary& assetLibrary,
         uint32_t shipType)
     {
         std::shared_ptr<GameObject> spObject;

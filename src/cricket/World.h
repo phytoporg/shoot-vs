@@ -7,6 +7,7 @@
 #include "GameObject.h"
 
 #include <vector>
+#include <memory>
 
 #include <SFML/Graphics.hpp>
 
@@ -31,5 +32,7 @@ namespace cricket
     private:
         std::vector<GameObjectPtr> m_objects;
     };
+
+    using WorldPtr = std::shared_ptr<World>;
 }
 

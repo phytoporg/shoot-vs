@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 
 #include <string>
+#include <memory>
 
 namespace cricket
 {
@@ -17,8 +18,12 @@ namespace cricket
     // Fordward decl
     //
     class AssetLibrary;
+}
 
-    class Ship : public GameObject
+namespace ShootVs
+{
+
+    class Ship : public cricket::GameObject
     {
         public:
             //
@@ -26,8 +31,8 @@ namespace cricket
             //
             // Supported values: 0-2... eventually. Right now, just 0.
             //
-            static GameObjectPtr CreateObject(
-                const AssetLibrary& assetLibrary,
+            static cricket::GameObjectPtr CreateObject(
+                const cricket::AssetLibrary& assetLibrary,
                 uint32_t shipType);
 
             virtual void Update(const sf::Time& dt) override;
@@ -54,5 +59,7 @@ namespace cricket
 
             sf::Vector2i m_velocity;
     };
+
+    using ShipPtr = std::shared_ptr<Ship>;
 }
 
