@@ -7,6 +7,8 @@
 #include "InputDeviceClass.h"
 #include "ActionState.h"
 
+#include <memory>
+
 namespace cricket
 {
     class InputDevice
@@ -16,5 +18,7 @@ namespace cricket
         virtual InputDeviceClass GetDeviceClass() = 0;
         virtual ActionState      GetActionState() = 0;
     };
+
+    using InputDevicePtr = std::shared_ptr<InputDevice>;
 }
 
