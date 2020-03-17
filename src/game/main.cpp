@@ -5,8 +5,8 @@
 #include <SFML/Graphics/Sprite.hpp>
 
 #include <cricket/World.h>
-#include <cricket/KeyboardEventState.h>
-#include <cricket/AssetLibrary.h>
+#include <cricket/input/KeyboardEventState.h>
+#include <cricket/resource/AssetLibrary.h>
 
 #include "Ship.h"
 #include "GameSimulation.h"
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 				window.setView(sf::View(visibleArea));
 
                 //
-                // HRM. Gotta fix this.
+                // TODO: HRM. Gotta fix this.
                 //
                 // spShip->SetPosition(sf::Vector2i(100, 100));
             }
@@ -90,7 +90,10 @@ int main(int argc, char** argv)
         sf::Time elapsed{clock.getElapsedTime()};
         const sf::Time DesiredFrameDuration(
             sf::seconds(1.0 / ShootVs::GameSimulation::TargetFPS));
-        sf::sleep(DesiredFrameDuration - elapsed);
+        if (DesiredFrameDuration > elapsed)
+        {
+            sf::sleep(DesiredFrameDuration - elapsed);
+        }
         clock.restart();
 
         window.display();

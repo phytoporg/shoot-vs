@@ -5,9 +5,9 @@
 #pragma once
 
 #include <cricket/World.h>
-#include <cricket/ActionState.h>
-#include <cricket/ActionPlayer.h>
-#include <cricket/ActionQueue.h>
+#include <cricket/input/ActionState.h>
+#include <cricket/input/ActionPlayer.h>
+#include <cricket/input/ActionQueue.h>
 
 #include "Ship.h"
 

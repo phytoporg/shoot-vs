@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ActionPlayer.h"
-#include "ActionState.h"
+#include <input/ActionPlayer.h>
+#include <input/ActionState.h>
 #include <cstdint>
 
 namespace cricket

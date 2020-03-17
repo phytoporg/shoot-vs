@@ -1,7 +1,7 @@
 #include "GameSimulation.h"
 
 #include <cricket/World.h>
-#include <cricket/AssetLibrary.h>
+#include <cricket/resource/AssetLibrary.h>
 
 #include "Ship.h"
 
