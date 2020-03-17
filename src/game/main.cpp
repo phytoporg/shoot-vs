@@ -4,7 +4,7 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 
-#include <cricket/World.h>
+#include <cricket/game/World.h>
 #include <cricket/input/KeyboardEventState.h>
 #include <cricket/resource/AssetLibrary.h>
 

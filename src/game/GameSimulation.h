@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <cricket/World.h>
+#include <cricket/game/World.h>
 #include <cricket/input/ActionState.h>
 #include <cricket/input/ActionPlayer.h>
 #include <cricket/input/ActionQueue.h>

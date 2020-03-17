@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <cricket/GameObject.h>
+#include <cricket/game/GameObject.h>
 
 #include <SFML/Graphics/Sprite.hpp>
 #include <glm/glm.hpp>

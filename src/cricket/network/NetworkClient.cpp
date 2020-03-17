@@ -1,6 +1,6 @@
 #include "NetworkClient.h"
 
-#include <utility/Utility.h>
+#include <utility/FailFast.h>
 
 #include <arpa/inet.h>
 #include <netinet/in.h>

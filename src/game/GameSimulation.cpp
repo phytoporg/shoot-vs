@@ -1,6 +1,6 @@
 #include "GameSimulation.h"
 
-#include <cricket/World.h>
+#include <cricket/game/World.h>
 #include <cricket/resource/AssetLibrary.h>
 
 #include "Ship.h"
@@ -9,7 +9,6 @@
 
 namespace 
 {
-
     bool 
     HandleAction(
         const cricket::PlayerActionState action,
