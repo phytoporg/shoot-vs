@@ -106,11 +106,6 @@ int main(int argc, char** argv)
                 sf::FloatRect visibleArea(
                     0, 0, event.size.width, event.size.height);
 				window.setView(sf::View(visibleArea));
-
-                //
-                // TODO: HRM. Gotta fix this.
-                //
-                // spShip->SetPosition(sf::Vector2i(100, 100));
             }
 
             eventState.ProcessEvent(event);
