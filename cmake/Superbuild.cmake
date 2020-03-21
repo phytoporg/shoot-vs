@@ -7,7 +7,7 @@ set(PROJECT_ARCHITECTURE x64)
 
 include (${PROJECT_SOURCE_DIR}/cmake/External-googletest.cmake)
 
-ExternalProject_Add(Watchers
+ExternalProject_Add(ShootVs
     DEPENDS ${DEPENDENCIES}
     DOWNLOAD_COMMAND ""
     SOURCE_DIR ${PROJECT_SOURCE_DIR}
