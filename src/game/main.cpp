@@ -5,8 +5,11 @@
 #include <SFML/Graphics/Sprite.hpp>
 
 #include <cricket/game/World.h>
-#include <cricket/input/KeyboardEventState.h>
 #include <cricket/resource/AssetLibrary.h>
+
+#include <cricket/input/KeyboardEventState.h>
+#include <cricket/input/InputDeviceEnumerator.h>
+#include <cricket/input/InputDeviceCollector.h>
 
 #include "Ship.h"
 #include "GameSimulation.h"
@@ -48,8 +51,49 @@ int main(int argc, char** argv)
     ShootVs::GameSimulationPtr spGameSimulation = 
         ShootVs::GameSimulation::CreateAndInitialize(*spAssetLibrary);
 
-    sf::Clock clock;
+    //
+    // Initialize input devices.
+    //
     cricket::KeyboardEventState eventState;
+    cricket::InputDeviceEnumerator deviceEnumerator(eventState);
+
+    auto inputDevices = deviceEnumerator.GetAvailableDevices();
+    if (inputDevices.empty()) 
+    {
+        std::cerr << "Couldn't find any input devices." << std::endl;
+        return -1;
+    }
+
+    //
+    // Hard-code the device map for now (player 1 gets keyboard)
+    //
+
+    cricket::InputDevicePtr spKeyboardDevice;
+    for (const auto& spDevice : inputDevices)
+    {
+        if (spDevice->GetDeviceClass() == cricket::InputDeviceClass::Keyboard)
+        {
+            spKeyboardDevice = spDevice;
+            break;
+        }
+    }
+
+    if (!spKeyboardDevice)
+    {
+        std::cerr << "Couldn't find keyboard device." << std::endl;
+        return -1;
+    }
+    
+    cricket::InputDeviceCollector::DeviceMap deviceMap { spKeyboardDevice };
+    auto spInputCollector = 
+        cricket::InputDeviceCollector::CreateAndInitialize(deviceMap);
+    if (!spInputCollector)
+    {
+        std::cerr << "Failed to create input collector." << std::endl;
+        return -1;
+    }
+
+    sf::Clock clock;
     while (window.isOpen())
     {
         sf::Event event;
@@ -72,10 +116,33 @@ int main(int argc, char** argv)
             eventState.ProcessEvent(event);
         }
 
-        const auto& P1State = eventState.GetActionState();
-        if (P1State.Quit) { window.close(); break; }
+        {
+            cricket::ActionState p1State;
+            if (spInputCollector->GetActionStateForPlayer(
+                cricket::ActionPlayer1, &p1State
+                ))
+            {
+                if (p1State.Quit) { window.close(); break; }
 
-        spGameSimulation->EnqueueAction(P1State, cricket::ActionPlayer1);
+                spGameSimulation->EnqueueAction(
+                    p1State, cricket::ActionPlayer1
+                    );
+            }
+        }
+
+        {
+            cricket::ActionState p2State;
+            if (spInputCollector->GetActionStateForPlayer(
+                cricket::ActionPlayer2, &p2State
+                ))
+            {
+                if (p2State.Quit) { window.close(); break; }
+
+                spGameSimulation->EnqueueAction(
+                    p2State, cricket::ActionPlayer1
+                    );
+            }
+        }
 
         //
         // TODO: Add proper timing logic per frame.

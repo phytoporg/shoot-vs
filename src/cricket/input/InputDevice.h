@@ -15,8 +15,8 @@ namespace cricket
     {
     public:
         virtual ~InputDevice() = default;
-        virtual InputDeviceClass GetDeviceClass() = 0;
-        virtual ActionState      GetActionState() = 0;
+        virtual InputDeviceClass::EnumType GetDeviceClass() = 0;
+        virtual ActionState                GetActionState() = 0;
     };
 
     using InputDevicePtr = std::shared_ptr<InputDevice>;

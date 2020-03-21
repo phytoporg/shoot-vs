@@ -7,6 +7,9 @@
 #pragma once
 
 #include "InputDevice.h"
+#include "KeyboardEventState.h"
+
+#include <vector>
 
 namespace cricket
 {
@@ -29,7 +32,7 @@ namespace cricket
         std::vector<InputDevicePtr> GetAvailableDevices();
 
     private:
-        KeyboardEventState& m_keyboardEventState;
+        InputDevicePtr      m_spKeyboardDevice;
     };
 }
 

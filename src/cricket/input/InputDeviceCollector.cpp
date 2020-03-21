@@ -72,6 +72,8 @@ namespace cricket
             return false;
         }
 
+        if (PlayerIndex >= m_deviceMap.size()) { return false; }
+
         *pActionState = m_deviceMap[PlayerIndex]->GetActionState();
         return true;
     }
