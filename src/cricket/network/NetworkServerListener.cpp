@@ -1,46 +1,56 @@
-#include "NetworkServer.h"
+#include "NetworkServerListener.h"
 
+#include <chrono>
 #include <cstring>
+#include <thread>
 
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
 
+#include <fcntl.h>
 #include <unistd.h>
 
 namespace cricket
 {
-    NetworkServerPtr NetworkServer::MakeAndInitialize(
+    NetworkServerListenerPtr NetworkServerListener::MakeAndInitialize(
         ClientCallbackType& callback)
     {
-        NetworkServerPtr spServerPtr;
-        spServerPtr.reset(new NetworkServer(callback));
+        NetworkServerListenerPtr spServerPtr;
+        spServerPtr.reset(new NetworkServerListener(callback));
 
         return spServerPtr;
     }
 
-    NetworkServer::NetworkServer(ClientCallbackType& callback)
+    NetworkServerListener::NetworkServerListener(ClientCallbackType& callback)
         : m_callbackFn(callback), m_accepting(true)
     {}
 
-    NetworkServer::~NetworkServer()
+    NetworkServerListener::~NetworkServerListener()
     {
         if (m_socket) { close(m_socket); }
-        m_accepting = false;
+        StopListening();
     }
 
-    bool NetworkServer::WaitForConnections(int port)
+    bool NetworkServerListener::ListenForConnections(int port)
     {
         const int ServerSock = socket(AF_INET, SOCK_STREAM, 0);
         if (ServerSock < 0) { return false; }
         m_socket = ServerSock;
 
+        //
+        // ServerSock -> nonblocking socket.
+        //
+        const int Flags{fcntl(ServerSock, F_GETFL)};
+        if (Flags < 0) { return false; }
+
+        if (fcntl(ServerSock, F_SETFL, Flags | O_NONBLOCK) < 0)
+        { return false; }
+
         int enable = 1;
         if (setsockopt(
             m_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
-        {
-            return false;
-        }
+        { return false; }
 
         m_port = port;
         struct sockaddr_in servaddr;
@@ -67,15 +77,34 @@ namespace cricket
         while (m_accepting)
         {
             const int Connection = accept(m_socket, nullptr, nullptr);
-            if (!Connection)
+            if (Connection < 0)
             {
-                m_accepting = false;
+                if (errno == EWOULDBLOCK)
+                {
+                    //
+                    // No pending connections. Sleep and try again.
+                    //
+                    using namespace std::chrono_literals;
+                    const auto SleepDuration{500ms};
+                    std::this_thread::sleep_for(SleepDuration);
+                }
+                else
+                {
+                    m_accepting = false;
+                }
             }
             else
             {
                 m_callbackFn(Connection);
             }
         }
+
+        return true;
+    }
+
+    void NetworkServerListener::StopListening()
+    {
+        m_accepting = false;
     }
 }
 

@@ -10,7 +10,7 @@
 
 #include <gtest/gtest.h>
 #include <cricket/network/NetworkClient.h>
-#include <cricket/network/NetworkServer.h>
+#include <cricket/network/NetworkServerListener.h>
 
 using namespace std::chrono_literals;
 
