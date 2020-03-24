@@ -5,14 +5,18 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace cricket
 {
+    class NetworkClient;
+    using NetworkClientPtr = std::shared_ptr<NetworkClient>;
+
     class NetworkClient
     {
     public:
-        NetworkClient();
-        virtual ~NetworkClient() = default;
+        static NetworkClientPtr MakeAndInitialize();
+        ~NetworkClient();
 
         bool Connect(const std::string& host, uint16_t port);
         void Disconnect();
@@ -30,9 +34,15 @@ namespace cricket
         size_t Receive(std::vector<uint8_t>* pData, size_t startIndex = 0);
         size_t Receive(uint8_t* pBuffer, size_t maxBufferSize);
 
+        bool IsConnected() const;
+
     private:
+        NetworkClient(int socket);
+
         int  m_sockFd;
         bool m_connected;
     };
+
+    using NetworkClientPtr = std::shared_ptr<NetworkClient>;
 }
 

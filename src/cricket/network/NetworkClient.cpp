@@ -9,17 +9,30 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
+#include <cassert>
+
 namespace cricket
 {
-    NetworkClient::NetworkClient()
+    NetworkClientPtr NetworkClient::MakeAndInitialize()
     {
-        m_sockFd = socket(AF_INET, SOCK_STREAM, 0);
+        NetworkClientPtr spClient;
+        int sockFd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sockFd < 0) { return spClient; }
 
-        //
-        // Experimenting with exceptionless design. This doesn't... seem like
-        // the right approach, but it'll do for now.
-        //
-        if (m_sockFd < 0) { FailFast(); }
+        spClient.reset(new NetworkClient(sockFd));
+    }
+
+    NetworkClient::NetworkClient(int socket)
+        : m_sockFd(socket), m_connected{false}
+    {}
+
+    NetworkClient::~NetworkClient()
+    {
+        Disconnect();
+
+        close(m_sockFd);
+        m_connected = false;
+        m_sockFd = 0;
     }
 
     bool NetworkClient::Connect(const std::string& host, uint16_t port) 
@@ -50,9 +63,7 @@ namespace cricket
 
     void NetworkClient::Disconnect() 
     {
-        close(m_sockFd);
-        m_connected = false;
-        m_sockFd = 0;
+        shutdown(m_sockFd, 2);
     }
 
     size_t NetworkClient::Send(const std::vector<uint8_t>& data)
@@ -62,6 +73,7 @@ namespace cricket
 
     size_t NetworkClient::Send(uint8_t const* pData, size_t payloadSize)
     {
+        assert(pData);
         if (!m_connected) { return 0; }
 
         const int Flags{0};
@@ -79,17 +91,21 @@ namespace cricket
         std::vector<uint8_t>* pData,
         size_t startIndex)
     {
-        //
-        // TODO
-        //
-        return 0;
+        assert(pData);
+        if (!m_connected)                { return 0; }
+        if (startIndex >= pData->size()) { return 0; }
+
+        const size_t MaxBufferSize{startIndex - pData->size()};
+        return Receive(pData->data() + startIndex, MaxBufferSize);
     }
     
     size_t NetworkClient::Receive(uint8_t* pBuffer, size_t maxBufferSize)
     {
-        //
-        // TODO
-        //
-        return 0;
+        assert(pBuffer);
+        if (!m_connected) { return 0; } // Hrm. Could check this twice :(
+
+        const int Flags{0};
+        return recv(m_sockFd, pBuffer, maxBufferSize, Flags);
     }
 }
+
