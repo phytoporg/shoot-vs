@@ -7,6 +7,8 @@
 #include <functional>
 #include <memory>
 
+#include "NetworkClient.h"
+
 namespace cricket
 {
     class NetworkServerListener;
@@ -15,7 +17,7 @@ namespace cricket
     class NetworkServerListener
     {
     public:
-        using ClientCallbackType = std::function<void(int)>;
+        using ClientCallbackType = std::function<void(NetworkClientPtr)>;
         static NetworkServerListenerPtr 
             MakeAndInitialize(ClientCallbackType& callback);
         virtual ~NetworkServerListener();

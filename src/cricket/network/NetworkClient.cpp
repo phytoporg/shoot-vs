@@ -19,11 +19,21 @@ namespace cricket
         int sockFd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockFd < 0) { return spClient; }
 
-        spClient.reset(new NetworkClient(sockFd));
+        spClient.reset(new NetworkClient(sockFd, false));
+        return spClient;
     }
 
-    NetworkClient::NetworkClient(int socket)
-        : m_sockFd(socket), m_connected{false}
+    NetworkClientPtr NetworkClient::MakeAndInitialize(int socket)
+    {
+        NetworkClientPtr spClient;
+        if (socket < 0) { return spClient; }
+
+        spClient.reset(new NetworkClient(socket, true));
+        return spClient;
+    }
+
+    NetworkClient::NetworkClient(int socket, bool isConnected)
+        : m_sockFd(socket), m_connected{isConnected}
     {}
 
     NetworkClient::~NetworkClient()
@@ -31,7 +41,6 @@ namespace cricket
         Disconnect();
 
         close(m_sockFd);
-        m_connected = false;
         m_sockFd = 0;
     }
 
@@ -64,6 +73,7 @@ namespace cricket
     void NetworkClient::Disconnect() 
     {
         shutdown(m_sockFd, 2);
+        m_connected = false;
     }
 
     size_t NetworkClient::Send(const std::vector<uint8_t>& data)

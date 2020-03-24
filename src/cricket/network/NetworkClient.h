@@ -16,7 +16,8 @@ namespace cricket
     {
     public:
         static NetworkClientPtr MakeAndInitialize();
-        ~NetworkClient();
+        static NetworkClientPtr MakeAndInitialize(int socket);
+        virtual ~NetworkClient();
 
         bool Connect(const std::string& host, uint16_t port);
         void Disconnect();
@@ -37,7 +38,7 @@ namespace cricket
         bool IsConnected() const;
 
     private:
-        NetworkClient(int socket);
+        NetworkClient(int socket, bool isConnected = false);
 
         int  m_sockFd;
         bool m_connected;

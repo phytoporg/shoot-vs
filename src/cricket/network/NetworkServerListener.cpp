@@ -95,7 +95,7 @@ namespace cricket
             }
             else
             {
-                m_callbackFn(Connection);
+                m_callbackFn(NetworkClient::MakeAndInitialize(Connection));
             }
         }
 

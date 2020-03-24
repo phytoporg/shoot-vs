@@ -74,8 +74,12 @@ TEST(ClientServerTest, ServerListenerConnect)
     bool callbackInvoked = false;
     std::condition_variable cv;
     cricket::NetworkServerListener::ClientCallbackType 
-        clientConnectionCallback = [&cv, &callbackInvoked](int connection)
+        clientConnectionCallback = [&cv, &callbackInvoked](
+                cricket::NetworkClientPtr spClient
+            )
         {
+            ASSERT_TRUE(!!spClient);
+
             callbackInvoked = true;
             cv.notify_all();
         };
