@@ -69,33 +69,38 @@ TEST(ClientServerTest, ClientConnect)
     ASSERT_TRUE(cv.wait_for(lock, 200ms, [&connected]{ return connected; })); 
 }
 
-TEST(ClientServerTest, ServerConnect)
+TEST(ClientServerTest, ServerListenerConnect)
 {
     bool callbackInvoked = false;
-    cricket::NetworkServer::ClientCallbackType clientConnectionCallback =
-        [&callbackInvoked](int connection)
+    std::condition_variable cv;
+    cricket::NetworkServerListener::ClientCallbackType 
+        clientConnectionCallback = [&cv, &callbackInvoked](int connection)
         {
             callbackInvoked = true;
+            cv.notify_all();
         };
-    auto spServer = 
-        cricket::NetworkServer::MakeAndInitialize(clientConnectionCallback);
+    auto spServerListener = 
+        cricket::NetworkServerListener::MakeAndInitialize(
+            clientConnectionCallback);
     auto spClient = 
         cricket::NetworkClient::MakeAndInitialize();
 
     const int PortToUse{1338};
-    std::thread serverThread([&PortToUse, &spServer](){
-            ASSERT_TRUE(spServer->WaitForConnections(PortToUse));
+    std::thread listenerThread([&PortToUse, &spServerListener](){
+            ASSERT_TRUE(spServerListener->ListenForConnections(PortToUse));
         });
 
+    std::this_thread::sleep_for(50ms);
     spClient->Connect("127.0.0.1", PortToUse);
 
     std::mutex mutex;
-    std::condition_variable cv;
     std::unique_lock<std::mutex> lock(mutex);
     ASSERT_TRUE(
         cv.wait_for(
-            lock, 200ms, [&callbackInvoked](){ return callbackInvoked; }));
-    serverThread.detach();
+            lock, 500ms, [&callbackInvoked](){ return callbackInvoked; }));
+
+    spServerListener->StopListening();
+    listenerThread.join();
 }
 
 int main(int argc, char** argv)
